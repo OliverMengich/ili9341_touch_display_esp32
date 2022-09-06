@@ -1,8 +1,11 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>      // Hardware-specific library
+// Calibration data is stored in SPIFFS so we need to include it
+#define BLACK_SPOT
 
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 #define CF_OL24 &Orbitron_Light_24
+#define CF_RT24 &Roboto_Thin_24
 #define GFXFF 1
 #define FF18 &FreeSans12pt7b
 #include "Free_Fonts.h" // Include the header file attached to this sketch
@@ -25,8 +28,7 @@ bool returnHome=false;
 #define GREENBUTTON_H FRAME_H
 void setup(void) {
   tft.init();
-//  tft.begin();
-
+  Serial.begin(9600);
   tft.setRotation(1);
   homePage();
 }
@@ -71,45 +73,109 @@ void homePage(){
   tft.print("Power Page");
 }
 void ReadingsPage(){
-  uint16_t x1=10, y1=10;
-  bool pressed1 = tft.getTouch(&x1,&y1);
-  header("Readings Page", TFT_BLACK);
-  drawDatumMarker(10, 10);
-  tft.setFreeFont(CF_OL24);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setCursor(10,60);
-  tft.print("WaterLevel 1: ");
-  tft.setCursor(10,95);
-  tft.print("WaterLevel 2: ");
-  tft.setCursor(10,130);
-  tft.print("WaterLevel 3: ");
-  tft.setCursor(10,160);
-  tft.print("Board temp: ");
-  tft.setCursor(10,190);
-  tft.print("Pump is: ");
-  tft.setCursor(10,225);
-  tft.print("Power: ");
+  bool hereH1=true;
+  tft.setFreeFont(CF_RT24); 
+  while(hereH1==true){
+    uint16_t x, y;
+    // See if there's any touch data for us
+  if (tft.getTouch(&x, &y)){
+      Serial.println("I was touched !!!!");
+      Serial.println(x);
+      Serial.println(y);
+     if(x<=23 && y<=14){
+        Serial.println("Home Button was Pressed");
+        hereH1=false;
+        Serial.print("HereH now is: " );
+        Serial.println(hereH1);
+      }
+      header("Readings Page", TFT_BLACK);
+      drawDatumMarker(10, 10);
+      tft.setFreeFont(CF_OL24);
+      tft.setTextColor(TFT_WHITE, TFT_BLACK);
+    
+      tft.setCursor(10,60);
+      tft.print("WaterLevel 1: ");
+      tft.setCursor(220,60);
+      tft.print(9440);
+    
+      tft.setCursor(10,95);
+      tft.print("WaterLevel 2: ");
+      tft.setCursor(220,95);
+      tft.print(9440);
+    
+      tft.setCursor(10,130);
+      tft.print("WaterLevel 3: ");
+      tft.setCursor(220,130);
+      tft.print(9440);
+    
+      tft.setCursor(10,160);
+      tft.print("Board temp: ");
+      tft.setCursor(200,160);
+      tft.print(9440);
+    
+      tft.setCursor(10,190);
+      tft.print("Pump is: ");
+      tft.setCursor(150,190);
+      tft.print(digitalRead(33));
+    
+      tft.setCursor(10,225);
+      tft.print("Power: ");
+      tft.setCursor(120,225);
+      tft.print(9440);
+    }
+  }
+  Serial.println("I'm in Readings page and I'm returning to homePage");
+  return;
 }
 void powerReadingsPage(){
-  uint16_t x1=10, y1=10;
-  bool pressed1 = tft.getTouch(&x1,&y1);
-  header("Power", TFT_BLACK);
-  drawDatumMarker(10, 10);
+  bool hereH=true;
   tft.setFreeFont(CF_OL24);
-  tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.setCursor(10,60);
-  tft.print("Current: ");
-  tft.setCursor(10,95);
-  tft.print("Voltage: ");
-  tft.setCursor(10,130);
+  while(hereH==true){
+    uint16_t x, y;
+    // See if there's any touch data for us
+  if (tft.getTouch(&x, &y)){
+      Serial.println("I was touched !!!!");
+      Serial.println(x);
+      Serial.println(y);
+     if(x<=23 && y<=14){
+        Serial.println("Home Button was Pressed");
+        hereH=false;
+        Serial.print("HereH now is: " );
+        Serial.println(hereH);
+      }
+      header("Power", TFT_BLACK);
+      drawDatumMarker(10, 10);
+      tft.setFreeFont(CF_OL24);
+      tft.setTextColor(TFT_WHITE, TFT_BLACK);
+      tft.setCursor(10,60);
+      tft.print("Current: ");
+      tft.setCursor(10,95);
+      tft.print("Voltage: ");
+      tft.setCursor(10,130);
+    }
+  }
+  Serial.println("I'm in Power page and I'm returning to homePage");
+  return;
 }
 void configurationPage(){
   header("Configuration Page", TFT_BLACK);
   drawDatumMarker(10, 10);
+  tft.setFreeFont(CF_OL24);
   redBtn();
+  bool hereH=true;
+  while(hereH==true){
   uint16_t x, y;
     // See if there's any touch data for us
   if (tft.getTouch(&x, &y)){
+    Serial.println("I was touched !!!!");
+    Serial.println(x);
+    Serial.println(y);
+     if(x<=23 && y<=14){
+        Serial.println("Home Button was Pressed");
+        hereH=false;
+        Serial.print("HereH now is: ");
+        Serial.println(hereH);
+      }
     // Draw a block spot to show where touch was calculated to be
     #ifdef BLACK_SPOT
       tft.fillCircle(x, y, 2, TFT_BLACK);
@@ -124,17 +190,20 @@ void configurationPage(){
         }
       }
     }
-    else //Record is off (SwitchOn == false)
-    {
-      if ((x > GREENBUTTON_X) && (x < (GREENBUTTON_X + GREENBUTTON_W))) {
-        if ((y > GREENBUTTON_Y) && (y <= (GREENBUTTON_Y + GREENBUTTON_H))) {
-          Serial.println("Green btn hit");
-          greenBtn();
+      else //Record is off (SwitchOn == false)
+      {
+        if ((x > GREENBUTTON_X) && (x < (GREENBUTTON_X + GREENBUTTON_W))) {
+          if ((y > GREENBUTTON_Y) && (y <= (GREENBUTTON_Y + GREENBUTTON_H))) {
+            Serial.println("Green btn hit");
+            greenBtn();
+          }
         }
       }
+//      Serial.println(SwitchOn);
     }
-    Serial.println(SwitchOn);
   }
+  Serial.println("Returning to homePage");
+  return;
 }
 void redBtn(){
   tft.fillRect(REDBUTTON_X, REDBUTTON_Y, REDBUTTON_W, REDBUTTON_H, TFT_RED);
@@ -157,23 +226,24 @@ void greenBtn(){
   SwitchOn = true;
 }
 void loop(){
-  uint16_t x1=10, y1=10;
-  bool pressed5 = tft.getTouch(&x1,&y1);
-  if(pressed5){
-    homePage();
-  }else{
-    uint16_t x1=15, y1=75;
-    uint16_t x2=15, y2=125;
-    uint16_t x3=15, y3=175;
-    bool pressed1 = tft.getTouch(&x1,&y1);
-    bool pressed2 = tft.getTouch(&x2,&y2);
-    bool pressed3 = tft.getTouch(&x3,&y3);
-    if (pressed1){
-        configurationPage();
-    }else if(pressed2){
-        ReadingsPage();
-    }else if(pressed3){
-        powerReadingsPage();
+  uint16_t x1, y1;
+  if (tft.getTouch(&x1, &y1)){
+    Serial.println("Nav was touched");
+    Serial.println(x1);
+    Serial.println(y1);
+    if(x1<=35 && y1 >60 && y1<=75){
+      Serial.println("Navigating to configurations page");
+      configurationPage();
+    }else if(x1<=35 && y1 >100 && y1 <= 125){
+      Serial.println("Navigating to ReadingsPage");
+      ReadingsPage();
+    }
+    else if(x1<=35 && y1 >130 && y1 <= 175){
+      Serial.println("Navigating to Power ReadingsPage");
+      powerReadingsPage();
+    }
+    else{
+      homePage();
     }
   }
 }
