@@ -5,7 +5,7 @@
 
 TFT_eSPI tft = TFT_eSPI(); // Invoke custom library
 #define CF_OL24 &Orbitron_Light_24
-#define CF_RT24 &Roboto_Thin_24
+#define CF_RT24 &Orbitron_Light_24
 #define GFXFF 1
 #define FF18 &FreeSans12pt7b
 #include "Free_Fonts.h" // Include the header file attached to this sketch
@@ -160,36 +160,39 @@ void powerReadingsPage(){
 void configurationPage(){
   header("Configuration Page", TFT_BLACK);
   drawDatumMarker(10, 10);
-  tft.setFreeFont(CF_OL24);
-  redBtn();
+  tft.setFreeFont(CF_RT24);
+  if(SwitchOn){
+    greenBtn();
+  }else{
+    redBtn();
+  }
   bool hereH=true;
   while(hereH==true){
   uint16_t x, y;
     // See if there's any touch data for us
   if (tft.getTouch(&x, &y)){
-    Serial.println("I was touched !!!!");
-    Serial.println(x);
-    Serial.println(y);
-     if(x<=23 && y<=14){
-        Serial.println("Home Button was Pressed");
-        hereH=false;
-        Serial.print("HereH now is: ");
-        Serial.println(hereH);
-      }
-    // Draw a block spot to show where touch was calculated to be
-    #ifdef BLACK_SPOT
-      tft.fillCircle(x, y, 2, TFT_BLACK);
-    #endif
+      Serial.println("I was touched !!!!");
+      Serial.println(x);
+      Serial.println(y);
+       if(x<=23 && y<=14){
+          Serial.println("Home Button was Pressed");
+          hereH=false;
+          Serial.print("HereH now is: ");
+          Serial.println(hereH);
+        }
+      // Draw a block spot to show where touch was calculated to be
+      #ifdef BLACK_SPOT
+        tft.fillCircle(x, y, 2, TFT_BLACK);
+      #endif
     
-    if (SwitchOn)
-    {
-      if ((x > REDBUTTON_X) && (x < (REDBUTTON_X + REDBUTTON_W))) {
-        if ((y > REDBUTTON_Y) && (y <= (REDBUTTON_Y + REDBUTTON_H))) {
-          Serial.println("Red btn hit");
-          redBtn();
+      if (SwitchOn){
+        if ((x > REDBUTTON_X) && (x < (REDBUTTON_X + REDBUTTON_W))) {
+          if ((y > REDBUTTON_Y) && (y <= (REDBUTTON_Y + REDBUTTON_H))) {
+            Serial.println("Red btn hit");
+            redBtn();
+          }
         }
       }
-    }
       else //Record is off (SwitchOn == false)
       {
         if ((x > GREENBUTTON_X) && (x < (GREENBUTTON_X + GREENBUTTON_W))) {
@@ -199,7 +202,7 @@ void configurationPage(){
           }
         }
       }
-//      Serial.println(SwitchOn);
+      Serial.println(SwitchOn);
     }
   }
   Serial.println("Returning to homePage");
@@ -209,7 +212,7 @@ void redBtn(){
   tft.fillRect(REDBUTTON_X, REDBUTTON_Y, REDBUTTON_W, REDBUTTON_H, TFT_RED);
   tft.fillRect(GREENBUTTON_X, GREENBUTTON_Y, GREENBUTTON_W, GREENBUTTON_H, TFT_DARKGREY);
   tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(2);
+  tft.setTextSize(1);
   tft.setTextDatum(MC_DATUM);
   tft.drawString("OFF", GREENBUTTON_X + (GREENBUTTON_W / 2), GREENBUTTON_Y + (GREENBUTTON_H / 2));
   SwitchOn = false;
@@ -220,7 +223,7 @@ void greenBtn(){
   tft.fillRect(GREENBUTTON_X, GREENBUTTON_Y, GREENBUTTON_W, GREENBUTTON_H, TFT_GREEN);
   tft.fillRect(REDBUTTON_X, REDBUTTON_Y, REDBUTTON_W, REDBUTTON_H, TFT_DARKGREY);
   tft.setTextColor(TFT_WHITE);
-  tft.setTextSize(2);
+  tft.setTextSize(1);
   tft.setTextDatum(MC_DATUM);
   tft.drawString("ON", REDBUTTON_X + (REDBUTTON_W / 2) + 1, REDBUTTON_Y + (REDBUTTON_H / 2));
   SwitchOn = true;
